@@ -32,6 +32,28 @@ const getProjectName = async () => {
     return projectName;
 }
 
+const getInstallDeps = async () => {
+    let installDeps = yargs.argv.installDeps; 
+    if(installDeps === undefined) {
+        const rl = createInterface();
+        installDeps = await askQuestion(rl, 'Do you want to install dependencies? (y/n): ');
+        rl.close();
+    }
+    const trimToFirstChar = installDeps.trim().charAt(0);
+    return trimToFirstChar === 'y';
+}
+
+const getCommitChanges = async () => {
+    let commitChanges = yargs.argv.commitChanges; 
+    if(commitChanges === undefined) {
+        const rl = createInterface();
+        commitChanges = await askQuestion(rl, 'Do you want to commit changes? (y/n): ');
+        rl.close();
+    }
+    const trimToFirstChar = commitChanges.trim().charAt(0);
+    return trimToFirstChar === 'y';
+}
+
 const createInterface = () => {
     return readline.createInterface({
         input: process.stdin,
@@ -58,7 +80,9 @@ const execCommand = (command, options={}) => {
 
 const main = async () => {
     const projectName = await getProjectName();
-    await setUpRepo(projectName, false, false); 
+    const installDeps = await getInstallDeps();
+    const commitChanges = await getCommitChanges();
+    await setUpRepo(projectName, installDeps, commitChanges); 
 }
 
 main().catch(() => {
